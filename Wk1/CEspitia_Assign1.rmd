@@ -1,0 +1,64 @@
+---
+title: "Assignment1"
+author: "Cesar L. Espitia"
+date: "1/29/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Problem Set 1
+
+Netflix assignemnt.
+
+1. Calculate the dot product u.v where u = [0.5; 0.5] and v = [3;-4]
+```{r prob1-1}
+u = c(0.5,0.5)
+v = c(3,-4)
+u%*%v
+
+#The answer is -0.5
+```
+2. What are the lengths of u and v.
+
+```{r prob1-2}
+v = c(3,-4)
+sqrt(v%*%v)
+
+#The answer is 5.0 for the length of v
+
+u = c(0.5,0.5)
+sqrt(u%*%u)
+
+#The answer is 0.707 for the length of u
+```
+
+3. What is the linear combination of 3u-2v?
+
+```{r prob1-3}
+u = c(0.5,0.5)
+v = c(3,-4)
+3*u - 2*v
+
+#the answer is vector [-4.5 9.5]
+```
+
+4. What is the angle between u and v
+
+
+cos(theta) = u.v / ||u||*||v||
+
+```{r prob1-4}
+dot = u%*%v
+magu = sqrt(u%*%u)
+magv = sqrt(v%*%v)
+costheta = dot / (magu * magv)
+
+acos(costheta)
+
+#the angle is 1.713 radians
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
