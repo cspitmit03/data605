@@ -3,8 +3,8 @@ title: "Assignment1"
 author: "Cesar L. Espitia"
 date: "1/29/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ## 1. Problem Set 1
@@ -60,7 +60,7 @@ acos(costheta)
 
 ## Solving a system of equations using R only not built in functions
 
-```{r prob2-1, echo = True}
+```{r prob2-1}
 A = matrix(c(1,2,-1,1,-1,-2,3,5,4), nrow=3, ncol=3)
 b = matrix(c(1, 2, 6), nrow = 3)
 
