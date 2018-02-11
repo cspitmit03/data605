@@ -34,8 +34,8 @@ ATA != AAT
 
 ##2. For a special type of square matrix $A$, we get $A^TA = AA^T$. Under what conditions could this be true?
 
-```{r prob1-1}
-## The only time this would work is if the item is an identity matrix that includes a constant multiplier (i.e. diag * c)
+```{r prob1-2}
+## The only time this would work is if the item is an identity matrix; it can also include a constant multiplier (i.e. diag * c)
 
 # Using Identity Matrix of 3x3
 I <- diag(3)
