@@ -1,0 +1,97 @@
+---
+title: "Assignment2"
+author: "Cesar L. Espitia"
+date: "2/7/2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+##Problem Set 1: 
+
+##1. Show that $A^TA\neq AA^T$
+```{r prob1-1}
+# First create matrix A
+A <- matrix(c(1,2,3,4,5,6,7,8,9), nrow = 3)
+A
+
+# Then transpose matrix A using t()
+AT <- t(A)
+AT
+
+# Multiply the transposed matrix A by matrix A
+ATA <- AT %*% A
+ATA
+
+# Multiply A by transposed matrix A (AA^T)
+AAT <- A %*% AT
+AAT
+
+# You can see that the matrices are not identical 
+
+ATA != AAT
+```
+
+##2. For a special type of square matrix $A$, we get $A^TA = AA^T$. Under what conditions could this be true?
+
+```{r prob1-1}
+## The only time this would work is if the item is an identity matrix that includes a constant multiplier (i.e. diag * c)
+
+# Using Identity Matrix of 3x3
+I <- diag(3)
+I
+
+# Transpose the id matrix
+IT <- t(I)
+
+# try both
+I1 <- IT %*% I
+I2 <- I %*% IT
+
+# check using logic
+I1 != I2
+
+```
+
+## Solving a system of equations using R only not built in functions
+
+```{r prob2-1}
+A = matrix(c(1,2,-1,1,-1,-2,3,5,4), nrow=3, ncol=3)
+b = matrix(c(1, 2, 6), nrow = 3)
+
+calc <- function (A,b){
+full = cbind(A,b)
+
+k=0
+#initialize Lower
+L = diag(dim(A)[2])
+
+while (k < ncol(A)){
+  k = k+1
+  i = k
+  j = k
+  while (i <= nrow(full)-1){
+    c = full[i+1,j]/full[j,j]
+    full[i+1,] = full[i+1,]-c*full[j,]
+    L[i+1,j] = c
+    i = 1+i
+  }
+}
+
+if (nrow(A) == 3){
+  j=nrow(A)-1
+  x3 = full[j+1,j+2]/full[j+1,j+1]
+  x2 = (full[j,j+2] - full[j,j+1]*x3)/full[j,j]
+  x1 = (full[j-1,j+2] - full[j-1,j+1]*x3 - full[j-1,j]*x2 )/full[j-1,j-1]
+}
+
+sol = cbind(x1, x2, x3)
+print("The following is the upper matrix")
+print(full[,1:3])
+print("The following is the lower matrix")
+print(L)
+}
+
+calc(A,b)
+```
+
