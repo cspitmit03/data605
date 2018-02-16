@@ -3,8 +3,8 @@ title: "Data 605 - Assignment 3"
 author: "Cesar Espitia"
 date: "2/14/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 # 1. Problem Set 1
 
@@ -102,7 +102,7 @@ eigen(A)
 This gives us when fully reduced $0 = (1-\lambda)(6-\lambda)(4-\lambda)$ which gives us the eigenvalues \lambda = 1,6,4 with eigenvectors 
 
 $$
-\lambda \left|\begin{array}{cc} 
+\left|\begin{array}{cc} 
 0\\
 0\\
 1
