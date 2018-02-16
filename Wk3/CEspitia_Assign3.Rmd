@@ -1,0 +1,120 @@
+---
+title: "Data 605 - Assignment 3"
+author: "Cesar Espitia"
+date: "2/14/2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+# 1. Problem Set 1
+
+### (1) What is the rank of Matrix A?
+
+$$
+A = \left|\begin{array}{cc} 
+1 & 2 & 3 & 4\\
+-1 & 0& 1 & 3 \\
+0 & 1 & -2 & 1 \\
+5 & 4 & -2 & -3
+\end{array}\right|
+$$ 
+
+```{r setup, include=FALSE}
+A <- matrix(c(1,2,3,4,-1,0,1,3,0,1,-2,1,5,4,-2,-3), nrow = 4)
+
+qr(A)
+
+B <- matrix(c(1,2,1,3,6,3,2,4,2), nrow = 3)
+
+qr(B)
+```
+
+The rank is 4.
+
+### (2) Given $m\times n$ where $m>n$ what is max rank what is min rank (assuming non-zero)?
+
+The max rank is n and the min rank is 1 assuming non-zero.
+
+### (3) What is the rank of B?
+
+$$
+B = \left|\begin{array}{cc} 
+1 & 2 & 1\\
+3 & 6 & 3 \\
+2 & 4 & 2
+\end{array}\right|
+$$ 
+
+The rank is 1 because $r_{2} =2\times r_{1}$ and $r_~3~ _{3} =3\times r_{1}$.
+
+
+# 2. Problem Set 2
+
+Compute the eigenvalues and eigenvectors of the matrix A.
+
+$$
+A = \left|\begin{array}{cc} 
+1 & 2 & 3 \\
+0 & 4 & 5 \\
+0 & 0 & 6
+\end{array}\right|
+$$ 
+
+First we solve for 
+$$
+det \left|\begin{array}{cc} 
+A - \lambda I 
+\end{array}\right| 
+$$
+which equals:
+
+$$
+\left|\begin{array}{cc} 
+1-\lambda & 2 & 3 \\
+0 & 4-\lambda & 5 \\
+0 & 0 & 6-\lambda
+\end{array}\right|
+$$ 
+
+Reducing the matrix gives us:
+
+$$
+1-\lambda \left|\begin{array}{cc} 
+4-\lambda & 5 \\
+0 & 6-\lambda
+\end{array}\right|
+-2 \left|\begin{array}{cc} 
+0 & 5 \\
+0 & 6-\lambda
+\end{array}\right|
++3 \left|\begin{array}{cc} 
+0 & 4-\lambda \\
+0 & 0
+\end{array}\right|
+$$ 
+
+```{r two, include=FALSE}
+A <- matrix(c(1,2,3,0,4,5,0,0,6), nrow = 3)
+
+eigen(A)
+```
+
+This gives us when fully reduced $0 = (1-\lambda)(6-\lambda)(4-\lambda)$ which gives us the eigenvalues \lambda = 1,6,4 with eigenvectors 
+
+$$
+\lambda \left|\begin{array}{cc} 
+0\\
+0\\
+1
+\end{array}\right|
+\left|\begin{array}{cc} 
+0\\
+0.37\\
+-0.93
+\end{array}\right|
+\left|\begin{array}{cc} 
+0.83\\
+-0.55\\
+0.06
+\end{array}\right|
+$$
