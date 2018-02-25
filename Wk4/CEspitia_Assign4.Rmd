@@ -1,0 +1,79 @@
+---
+title: "Assignment4"
+author: "Cesar L. Espitia"
+date: "2/24/2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+##Problem Set 1: 
+
+##1. In this problem, we'll verify using R that SVD and Eigenvalues are related as worked out in the weekly module. Given a $3x2$ matrix A
+
+
+```{r prob1-1}
+# First create matrix A
+A <- matrix(c(1,2,3,-1,0,4), nrow = 2)
+
+# Then transpose matrix A using t()
+AT <- t(A)
+AT
+
+# Multiply the transposed matrix A by matrix A
+Y<- AT %*% A
+Y
+
+# Multiply A by transposed matrix A (AA^T)
+X<- A %*% AT
+X
+
+# compute eigenvalues and eigenvectors
+EX = eigen(X)
+
+EY = eigen(Y)
+
+SA <- svd(A)
+
+#As you can see the first two columns are the Evectors of X and the right are the left singular for A
+cbind(EX$vectors, SA$u)
+
+#As you can see the first two columns are the Evectors of X and the right are the right singular for A except the Evectors for Y has the third column that is not present in svd for the right singular.
+cbind(EY$vectors, SA$v)
+
+#to compute the non zero values, you need to take the sqrt of the eigenvalues for X and compare it to the singulard values of svd for A.  
+
+cbind(sqrt(EX$values), SA$d)
+```
+
+##2. Using the procedure outlined in section 1 of the weekly handout, write a function tocompute the inverse of a well-conditioned full-rank square matrix using co-factors.  Your function should be myinverse(A).
+
+```{r prob2-1}
+A <- matrix(c(2,3,6,6,3,5,5,8,9),nrow=3)
+myinverse <- function(A){
+  #generate empty I matrix first
+  I <- diag(1,nrow(A),ncol(A))
+  #iterate over the rows
+   for (i in 1:nrow(A)) { 
+        #iterate over the columns
+        for (j in 1:ncol(A)){ 
+          #Calucate the value for each cell in the matrix
+          Mmini <- A[-i,-j]
+          #-1 raised to a power provides the appropriate signs as the mini det is calculated for the 2x2s
+          I[i,j] <- ((-1)^(i+j))*det(Mmini)
+        }
+   }
+  #finish the calculation by dividing by the det of A
+  return(t(I)/det(A))
+}
+
+#Original Matrix cbind to Inverse matrix B
+B=myinverse(A)
+A%*%B
+
+#althought the values are in scinotation you can see the 1's along the diagonal and zero/near zero in the other cells.
+
+```
+
+
+
