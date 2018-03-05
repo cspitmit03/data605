@@ -1,0 +1,73 @@
+---
+title: "Assignment 5"
+author: "Cesar L. Espitia"
+date: "3/4/2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Probabilities Assignment
+
+Choose independently two numbers B and C at random from the interval [0, 1] with uniform density. Prove that B and C are proper probability distributions.   Note that the point (B,C) is then chosen at random in the unit square.  Find the probability:
+
+### B + C < 0.5
+
+```{r prob1-1}
+set.seed(5) 
+n=10000
+B = runif(n, min = 0, max = 1)
+set.seed(6)
+C = runif(n, min = 0, max = 1)
+
+sum((B+C)<0.5)/n
+
+```
+The probability of a value sum being less than 0.5 is 12.6%.
+
+### B*C < 0.5
+
+```{r prob1-2}
+sum((B*C)<0.5)/n
+```
+
+The probability of a value product being less than 0.5 is 84%.
+
+### |B - C| < 0.5
+
+```{r prob1-3}
+sum(abs(B-C)<0.5)/n
+```
+
+The probability of a value being less than 0.5 is 0.75%.
+
+
+### max(B,C) < 0.5
+
+```{r prob1-4}
+count <- 0
+for(i in 1:n){
+  if(max(c(B[i],C[i])) < 0.5){
+    count = count+1
+  }
+}
+count/n
+```
+
+The probability of max(B,C) being less than 0.5 is 0.25%
+
+
+
+### min(B,C) < 0.5
+
+```{r prob1-5}
+count <- 0
+for(i in 1:n){
+  if(min(c(B[i],C[i])) < 0.5){
+    count = count+1
+  }
+}
+count/n
+```
+
+The probability of min(B,C) being less than 0.5 is 0.75%
