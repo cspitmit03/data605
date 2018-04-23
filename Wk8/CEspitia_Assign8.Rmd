@@ -1,0 +1,77 @@
+---
+title: "Assign8"
+author: "Cesar Espitia"
+date: "3/25/2018"
+output: html_document
+---
+
+## Question 1
+
+A company buys 100 lightbulbs, each of which has an exponential lifetime of
+1000 hours. What is the expected time for the first of these bulbs to burn
+out? (See Exercise 10.)
+
+###Answer
+The expected life is 1000 hours so lambda = 1/1000.
+
+If 100 are bought then it becomes 100* lambda = 1/10.
+
+The expected minimum is 1/1/10 which is 10 hours.
+
+The answer is 10 hours.  
+
+## Question 2
+
+
+Assume that X1 and X2 are independent random variables, each having an
+exponential density with parameter lambda. Show that Z = X1 − X2 has density:
+fZ(z) = (1/2)*lambda*e^(−lambda*|z|)
+
+## Answer
+X1 and X2 are defined as 
+f(x1) = lambda*e^(−lambda*x1)
+f(x2) = lambda*e^(−lambda*x2)
+
+convoluting them means multiplying f(x1)*f(x2)
+lambda*e^(−lambda*x1)*lambda*e^(−lambda*x2)
+this becomes lambda^2*e^(-lambda(x1+x2))
+
+subsitute Z = x1+x2
+lambda^2*e^(-lambda(z+2*x2))
+
+integrating the function from -z to +z to find the density becomes:
+f(z) = 0.5 * lambda * e^(lambda*|z|)
+
+## Question 3
+
+Let X be a continuous random variable with mean μ=10 and variance σ2=100/3. Using Chebyshev’s Inequality, find an upper bound for the following probabilities.
+
+## Answer
+the inequality is P(|X-mu| >= k*sigma) <= k^-2
+sigma = sqrt(100/3)
+
+(a) P(|X − 10| > 2).
+
+2 = k*sigma so k = 2/sqrt(100/3)
+
+the probability is k^-2 so 1/(4*3/100) = 8.3.  so 1.
+
+(b) P(|X − 10| > 5).
+
+5 = k*sigma so k = 5/sqrt(100/3)
+
+the probability is k^-2 so 1/(25*3/100) = 1.3. so 1. 
+
+(c) P(|X − 10| > 9).
+
+9 = k*sigma so k = 9/sqrt(100/3)
+
+the probability is k^-2 so 1/(81*3/100) = 0.41
+
+(d) P(|X − 10| > 20).
+
+20 = k*sigma so k = 20/sqrt(100/3)
+
+the probability is k^-2 so 1/(400*3/100) = 0.08
+
+####This shows that higher the value for k*sigma the closer to 0.  

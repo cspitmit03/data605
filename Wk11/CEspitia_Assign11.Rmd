@@ -1,0 +1,106 @@
+---
+title: "HW11-Data605"
+author: "Cesar Espitia"
+date: "April 22, 2018"
+output: html_document
+---
+
+### Assignment
+
+Using the “cars” dataset in R, build a linear model for stopping distance as a function of speed and replicate the analysis of your textbook chapter 3 (visualization, quality evaluation of the model, and residual analysis.)
+
+The following is the histogram for the speed.
+
+```{r part1}
+library(ggplot2)
+library(dplyr)
+
+df = arrange(cars, speed)
+
+ggplot(data=df, aes(df$speed)) + 
+  geom_histogram(aes(fill = ..count..)) +
+  scale_fill_gradient("Frequency", low = "blue", high = "red") +
+  labs(title = "Speed Counts") +
+  labs(x = "Speed") +
+  labs(y = "Count")
+```
+
+The following is the histogram for distance.
+
+```{r part2}
+ggplot(data=df, aes(df$dist)) + 
+  geom_histogram(aes(fill = ..count..)) +
+  scale_fill_gradient("Frequency", low = "green", high = "red") +
+  labs(title = "Distance Counts") +
+  labs(x = "Distance") +
+  labs(y = "Count")
+```
+
+The following is the correlation of the dataframe.
+
+```{r part3}
+Correlation <- function() {
+  x = cars$speed
+  y = cars$dist
+  c = cor(x, y)
+  print (c)
+  return (c)
+}
+
+d = Correlation()
+```
+
+The following is the linear model calculations.
+
+```{r part4}
+  model = lm (df$dist ~ df$speed, data = df)
+  modelsum = summary(model)
+  print(modelsum)
+  
+  model$coefficients[2]
+  model$coefficients[1]
+```
+
+The linear model is distance' = -57909 + 3.932409
+
+
+The following is the plot of the data and the linear model.
+
+```{r part5}
+ggplot(df, aes(speed, dist)) + geom_point(colour="black") + 
+    geom_abline(aes(slope=model$coefficients[2], intercept=model$coefficients[1])) +
+    labs(title = "Cars Data: Speed vs Distance") +
+    xlab("Speed") + 
+    ylab("Distance")
+```
+
+The model validity is:
+
+Multiple R-squared:  0.6511,	Adjusted R-squared:  0.6438
+
+This model can only explain 2/3 of the data, meaning we could potentially develop better models if more variables were available.
+
+
+```{r part6}
+ggplot(model, aes(.fitted, .resid)) + 
+  geom_point(color = "green") +
+  labs(title = "Residuals vs Fitted Data") +
+  labs(x = "Model Values") +
+  labs(y = "Residuals")
+```
+
+As you can see from the data there is no skewness or heteroskedasticity.  
+
+This can be further validated by using qq plots.
+
+
+```{r part7}
+qqnorm(resid(model))
+qqline(resid(model))
+```
+
+There may be some skewness on the right tail but its very minimal.
+
+###Overall, considering the data available the model has great correlation (>0.8) and better than average fit (R^2 ~ 2/3).  There is likely other variables that are impacting the correlation between speed and distance that are not visible.  Some items that come to mind may be road conditions, make and model of vehicle, time of day etc.
+  
+

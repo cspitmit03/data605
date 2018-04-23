@@ -1,0 +1,82 @@
+---
+title: "Discussion7"
+author: "Cesar Espitia"
+date: "3/14/2018"
+output: html_document
+---
+
+## Question 1
+
+Let X1, X2, . . . , Xn be n mutually independent random variables, each of which is uniformly distributed on the integers from 1 to k. Let Y denote the minimum of the Xi’s. Find the distribution of Y .
+
+###Answer
+The sum of any IID variables regardless of distribution would be a normal density function, however, this question is asking to obtain the minimum of the set of n variables each time.
+
+Since the minimum is still of length 1-k this means that the function would be a right skewed normal density function that starts at 0, peaking with height of j*1, where j<1, depending on the number of variables then immediately dropping off to a right tail.  This is from the fact that if the item was just X1 and nothing more the distribution would be a jerk, one impulse at (1,1).  
+
+I'm unsure of how to prove it but off of using the fact that any sum of IIDs would turn into a normal density function.
+
+## Question 2
+
+
+Your organization owns a copier (future lawyers, etc.) or MRI (future doctors). This machine has a manufacturer’s expected lifetime of 10 years. This means that we expect one failure every ten years. (Include the probability statements and R Code for each part.).
+
+What is the probability that the machine will fail after 8 years?. Provide also the expected value and standard deviation. Model as a geometric. (Hint: the probability is equivalent to not failing during the first 8 years..)
+E(X)=ns=10 Probability that machine fail once every 10 years
+
+s is the probability that the machine fail
+
+q is the probability that the machine does not fail
+
+## For all items I will assume that finding the failure is the left tail of the 8 years or X=yr 1, yr 2 ... to yr 8.  Will use internal r function pgeom, pexp, pbinom, ppois
+
+### Part a-d
+
+Assumea geometric distribution
+
+```{r Q2a}
+X=8 # years
+n = 10 # E(X)
+s = 1/n
+o = s*X
+q = 1-s
+
+#Calculate all as if it will not fail then do 1 minus to determine when it will
+pg <- pgeom(8, s, lower.tail=FALSE)
+pg<- 1-pg 
+mg <- s*X #E(X)
+sdg <- mg*q
+cat("The probability using a geometric distribution is",pg)
+cat("The mean using a geometric distribution is",mg)
+cat("The SD using a geometric distribution is",sdg)
+
+pe <- pexp(8, s, lower.tail=FALSE)
+pe <- 1-pe
+me <- 1/s
+sde <- sqrt(1/(s^2))
+
+cat("The probability using a exp distribution is",pe)
+cat("The mean using a exp distribution is",me)
+cat("The SD using a exp distribution is",sde)
+
+
+pb <- pbinom(0, size=8, prob=s)
+pb <- 1- pb
+mb <- X*s
+sdb <- sqrt(X*s*q)
+cat("The probability using a binomial distribution is",pb)
+cat("The mean using a binomial distribution is",mb)
+cat("The SD using a binomial distribution is",sdb)
+
+#for poisson we need lambda which is 1 failure
+p2 <- ppois(0, lambda=o)
+p2 <- 1 - p2
+m2 <- X*s
+sd2 <- sqrt(o)
+cat("Lambda is: ",o)
+cat("The probability using a binomial distribution is",pb)
+cat("The mean using a binomial distribution is",mb)
+cat("The SD using a binomial distribution is",sdb)
+```
+
+

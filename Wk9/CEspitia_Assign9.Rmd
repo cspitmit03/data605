@@ -1,0 +1,82 @@
+---
+title: "Assign9"
+author: "Cesar Espitia"
+date: "4/1/2018"
+output: html_document
+---
+
+## Question 1
+
+The price of one share of stock in the Pilsdorff Beer Company (see Exercise
+8.2.12) is given by Yn on the nth day of the year. Finn observes that
+the differences Xn = Yn+1 − Yn appear to be independent random variables
+with a common distribution having mean μ = 0 and variance sigma^2 = 1/4. If
+Y1 = 100, estimate the probability that Y365 is
+(a) > 100.
+(b) > 110.
+(c) > 120.
+
+###Answer
+Using CLT we can assume that the Y365-Y1 is normally distributed.  We know that E[Y365-Y1]=0 and that the var(Y365-Y1) = 364*1/4.
+
+STD = sqrt(365*.25) = 9.55
+
+a. P{Y365-Y1 > 0} = P(Y365 > 0 / 9.55) 
+since mu = 0 and the E=0 then probability = 0.5
+```{r a}
+pnorm(0, mean = 0, sd = sqrt(365*.25), lower.tail = FALSE)
+```
+
+
+
+b. P{Y365-Y1 > 10} = P(Y365 > 10 / 9.55) 
+
+```{r b}
+pnorm(10, mean = 0, sd = sqrt(365*.25), lower.tail = FALSE)
+```
+
+
+c. P{Y365-Y1 > 20} = P(Y365 > 20 / 9.55) 
+```{r c}
+pnorm(20, mean = 0, sd = sqrt(365*.25), lower.tail = FALSE)
+```
+
+
+## Question 2
+
+
+Calculate the expected value and variance of the binomial distribution using the moment generating function.
+
+## Answer
+To find E(X) and V(X) we need to start with the moment of the binomial distribution which is as follows:
+M(t)=[(1−p)+pe^t]^n
+
+In order to find the values we need to take the first and the second derivative and solve them for at time t=0.
+
+Using derivate we get:
+M'(t) = n(pe^t)[(1−p)+pe^t]^(n−1)
+M'(0) = n*1[(1-p)+p]^(n-1) 
+E(X) = np
+
+M''(t) =n(n−1)(pe^t)^2[(1−p)+pe^t]^(n−2)+n(pe^t)[(1−p)+pe^t]^(n−1)
+M''(0) = np(1-p)
+sigma^2 = M''(0) −[M'(0)]^2 = n(n−1)p^2+np−(np)2=np(1−p)
+
+
+## Question 3
+
+Calculate the expected value and variance of the exponential distribution using the moment generating function.
+
+## Answer
+Using the same method above:
+
+M(t)= l / (l-t)
+
+Using derivate we get:
+M'(t) = l / (l-t)^2 
+M'(0) = 1 / l
+E(X) = 1 / l
+
+M''(t) =2*l / (l-t)^3
+M''(0) = 2*l / l^3 = 2/l^2
+sigma^2 = M''(0) −[M'(0)]^2 = 2/l^2 - (1/l)^2 = 1/l^2
