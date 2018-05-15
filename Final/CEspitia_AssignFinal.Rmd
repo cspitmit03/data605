@@ -1,0 +1,102 @@
+---
+title: "CEspitia_AssignFinal"
+author: "Cesar Espitia"
+date: "5/13/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(e1071)
+library(dplyr)
+```
+
+## Final Data 605 Spring 2018
+
+Your final is due by the end of day on 5/20/2018 You should post your solutions to your GitHub account or RPubs. You are also expected to make a short presentation via YouTube and post that recording to the board. This project will show off your ability to understand the elements of the class.
+
+You are to register for Kaggle.com (free) and compete in the House Prices: Advanced Regression Techniques competition. https://www.kaggle.com/c/house-prices-advanced-regression-techniques . I want you to do the following.
+* Pick one of the quantitative independent variables from the training data set (train.csv) , and define that variable as X. Make sure this variable is skewed to the right!
+* Pick the dependent variable and define it as Y.
+
+###Data Exploration
+
+The data is loaded and the summary is being obtained for all variables (categorial or continuous).  In this case, I will only consider continouous variables for this anlaysis.  
+
+
+```{r dataexp}
+
+train = read.csv("train.csv")
+head(summary(train))
+
+summary(train$BsmtFinSF1)
+summary(train$BsmtFinSF2)
+
+train$d = train$BsmtFinSF1+train$BsmtFinSF2
+
+#function to get mode of a variable.
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+#test for skewneess 
+summary(train$d)[4]>summary(train$d)[3]
+summary(train$d)[3]>getmode(train$d)
+skewness(train$d)
+
+#visual of skewness
+par(mfrow=c(1,2))
+hist(train$d, main ='Histogram of Usable \n Basement Area')
+
+qqnorm(train$d, main ='QQ Plot of Usable \n Basement Area')
+qqline(train$d)
+
+```
+
+The data being used is the sum of the Finished Basement area.  This means that all types (even if the area is for mechanical/utilities) it could potentially in the future be reclaimed as usable space.  The area that is unfinished is being ignored as it is not livable at the point of sale.  It may add potential value in the future but I am making the assumption that it will not for the purposes of this analysis.  
+
+In addition, the data was selected because of its skewness which in this case is mean > median > mode.  Which in this case is 490.2 > 465 > 0, with lower bound of 0 since an area can only be GTE to 0 in livable space.  The histogram and the qqplot also visually confirm this information.
+
+The dependent variable for this analysis will be the Sale Price of the home, the function will have the form of $f(x) = SalePrice = m*(BsmtFinSF1+BsmtFinSf2)+b$.
+
+
+### Probability. 
+
+Calculate as a minimum the below probabilities a through c. Assume the small letter "x" is estimated as the 1st quartile of the X variable, and the small letter "y" is estimated as the 1st quartile of the Y variable. Interpret the meaning of all probabilities. In addition, make a table of counts as shown below.
+
+To populate the table of probabilities for the 3rd quartile for x and 2nd quartile for y, I will be using the quantile function in r.
+
+a. P(X>x|Y>y)
+
+```{r prob1}
+x3 <- quantile(train$d, 0.75)
+y2 <- quantile(train$SalePrice, 0.5)
+
+filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] / filter(train, train$SalePrice > y2) %>% count()/dim(train)[1]
+d11<- filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] / filter(train, train$SalePrice > y2) %>% count()
+```
+
+
+
+
+b. P(X>x,Y>y)
+
+```{r prob2}
+filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] * filter(train, train$SalePrice > y2) %>% count()/dim(train)[1]
+d11<- filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] / filter(train, train$SalePrice > y2) %>% count()
+```
+
+c. P(X<x|Y>y)
+
+
+```{r prob3}
+filter(train, train$SalePrice > y2 & train$d < x3) %>% count()/dim(train)[1] * filter(train, train$SalePrice > y2) %>% count()/dim(train)[1]
+```
+
+### Descriptive and Inferential Statistics.
+
+### Linear Algebra and Correlation.
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+### Calculus-Based Probability & Statistics.

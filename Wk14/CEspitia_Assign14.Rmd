@@ -1,0 +1,57 @@
+---
+title: "Data 605 HW 14"
+author: "Cesar Espitia"
+date: "5/13/2018"
+output: html_document
+---
+
+## Taylor Series
+### This week, we'll work out some Taylor Series expansions of popular functions.
+
+* $f(x) = 1/(1-x)$
+* $f(x) = e^x$
+* $f(x) = ln(1 + x)$
+For each function, only consider its valid ranges as indicated in the notes when you are
+computing the Taylor Series expansion. Please submit your assignment as a R-Markdown
+document.
+
+
+###$f(x) = 1/(1-x)$
+
+For this first taylor series we are doing nested derivates to be able to obtain the values at 0 for each step.
+
+$f'(x) = 1/(1-x)^2$
+$f''(x) = f'(f'(x)) = f'(1/(1-x)^2) = 2/(1-x)^3$
+$f'''(x) = f'(f''(x)) = 6/(1-x)^4$
+$f''''(x) = f'(f'''(x)) = 6*4/(1-x)^5$
+
+The form of the series is $n!/(1-x)^(n+1)$ where $n$ is the derivative step being evaluted. The series is bounded by $x\epsilon[-1,1]$
+
+The following shows the value for x=0 for 6 derivatives.
+
+```{r Q5}
+n=6
+x=0
+for(n in 0:6){
+  print(factorial(n)/(1-x)^(n+1))
+}
+```
+
+solving the series gives us $\sigma = x^n$ since the values at 0 cancel out the $n!$ in the denominator.
+
+###$f(x) = e^x$
+
+For this taylor series we come across a simple item.  Regardless of how many derivates of $e^x$... it is always $e^x$
+
+$f'(x) = e^x2$ etc.
+
+solving the series for $\sum = x^n/(n!)$ since the values at 0 are always 1 and don't cancel out the denominator.
+
+###$f(x) = ln(1+x)$
+
+For this taylor series it is similar to the $1/(1-x) value but it now provides an alternative negative sign for odd values.
+
+In this case also $ln(1+x)$ at $x=0$ becomes $ln(1) = 0$... so the first value evaluation is 0 then it follows the series of $1/(1-x)$ with alternating signs.
+
+
+Solving the series gives us $\sum = (-1)^(n+1)x^n/n$ since the values at 0 cancel out the $n!$ in the denominator.

@@ -1,0 +1,187 @@
+---
+title: "Data 605 HW 12"
+author: "Cesar Espitia"
+date: "4/29/2018"
+output: html_document
+---
+
+## Analyze World Health Organization Data
+
+###Import data
+
+Data is real-world World Health Organization data from 2008. It includes r nrow(who) observations for r ncol(who) variables. Data dictionary:
+
+* Country: name of the country
+* LifeExp: average life expectancy for the country in years
+* InfantSurvival: proportion of those surviving to one year or more
+* Under5Survival: proportion of those surviving to five years or more
+* TBFree: proportion of the population without TB
+* PropMD: proportion of the population who are MDs
+* PropRN: proportion of the population who are RNs
+* PersExp: mean personal expenditures on healthcare in US dollars at average exchange rate
+* GovtExp: mean government expenditures per capita on healthcare, US dollars at average exchange rate
+* TotExp: sum of personal and government expenditures
+
+```{r setup}
+who <- read.csv('who.csv')
+head(who)
+```
+
+
+###Data Exploration
+
+```{r explore}
+summary(who)
+```
+
+
+The above provides a glimpse of what the data is showing for each column and category.
+
+###Question 1
+Provide a scatterplot of LifeExp~TotExp, and run simple linear regression. Do not transform the variables. Provide and interpret the F statistics, R^2, standard error,and p-values only. Discuss whether the assumptions of simple linear regression met.
+
+```{r Q1}
+
+# Linear regression model build
+lm <- lm(LifeExp ~ TotExp, data=who)
+
+# Scatterplot of dependent and independent variables
+plot(LifeExp~TotExp, data=who, 
+     xlab="Total Expenditures", ylab="Life Expectancy",
+     main="Life Expectancy vs Total Expenditures")
+abline(lm)
+
+# Linear regression model summary
+summary(lm)
+
+# Residuals variability plot
+plot(lm$fitted.values, lm$residuals, 
+     xlab="Fitted Values", ylab="Residuals",
+     main="Residuals Plot for Linear Model")
+abline(h=0)
+
+## Residuals Q-Q plot
+qqnorm(lm$residuals)
+qqline(lm$residuals)
+```
+
+###Results
+Three items are providing insight into the shape of the data.  
+
+* $R^2$ ~ 0.25
+* Non-random shape of residuals
+* Major deviation at the tails for the QQ plot
+
+Looking a the above it is clear that the relationship is not linear and that there is a differnt underlying relationship in the data.
+
+###Question 2
+Raise life expectancy to the 4.6 power (i.e., LifeExp^4.6). Raise total expenditures to the 0.06 power (nearly a log transform, TotExp^.06). Plot LifeExp^4.6 as a function of TotExp^.06, and r re-run the simple regression model using the transformed variables. Provide and interpret the F statistics, R^2, standard error, and p-values. Which model is "better?"
+
+
+Transforming the variables as noted in Question 2.
+
+```{r Q2}
+
+# Transformation
+LifeExpNew <- who$LifeExp^4.6
+TotExpNew <- who$TotExp^0.06
+
+# Linear regression model build
+lmNew <- lm(LifeExpNew ~ TotExpNew)
+
+# Scatterplot of dependent and independent variables
+plot(LifeExpNew~TotExpNew, 
+     xlab="Total Expenditures", ylab="Life Expectancy",
+     main="Life Expectancy vs Total Expenditures (Modified)")
+abline(lmNew)
+
+# Linear regression model summary
+summary(lmNew)
+
+
+# Residuals variability plot
+plot(lmNew$fitted.values, lmNew$residuals, 
+     xlab="Fitted Values", ylab="Residuals",
+     main="Residuals Plot New")
+abline(h=0)
+
+# Residuals Q-Q plot
+qqnorm(lmNew$residuals)
+qqline(lmNew$residuals)
+```
+
+###Results
+Three items are providing insight into the shape of the data.  
+
+* R^2 ~ 0.75
+* Random shape of residuals
+* Minimal deviation at the tails for the QQ plot
+
+Looking at the above it is clear that the relationship is better described by the power functions.  The QQ plot shows minimal deviations at the tail indicating that there is no skewness based upon the new linear model developed.  The random residuals around the 0 line also indicate that the linear model 
+
+###Question 3
+
+```{r Q3}
+
+predictdata <- data.frame(TotExpNew=c(1.5,2.5))
+predict(lmNew, predictdata,interval="predict")^(1/4.6)
+```
+
+Predicting the values at 1.5 adn 2.5 provides the following results.  
+
+The prediction at 1.5 is 63 years with a CI(35.93545, 73.00793).
+
+The prediction at 2.5 is 87 year with a CI(81.80643, 90.43414).
+
+###Question 4
+Build the following multiple regression model and interpret the F Statistics, R^2, standard error, and p-values. How good is the model?
+
+LifeExp = b0+b1 x PropMd + b2 x TotExp + b3 x PropMD x TotExp
+
+
+```{r Q4}
+
+# Multiple linear regression model build
+lm4 <- lm(LifeExp ~ PropMD + TotExp + TotExp:PropMD, data=who)
+
+# Linear regression model summary
+summary(lm4)
+
+# Residuals variability plot
+plot(lm4$fitted.values, lm4$residuals, 
+     xlab="Fitted Values", ylab="Residuals",
+     main="Residuals Plot Cross Variable")
+abline(h=0)
+
+# Residuals Q-Q plot
+qqnorm(lm4$residuals)
+qqline(lm4$residuals)
+```
+
+###Results
+Three items are providing insight into the shape of the data.  
+
+* $R^2$ ~ 0.34
+* Non-random shape of residuals
+* Major deviation at the tails for the QQ plot
+
+Looking a the above it is clear that the relationship is not linear and that there is a differnt underlying relationship in the data.  In this case, the interaction between Total Expenditure and MD Population didn't generate a new variable that was a better indicator of the data.
+
+###Question 5
+Forecast LifeExp when PropMD=.03 and TotExp = 14. Does this forecast seem realistic? Why or why not?
+
+
+```{r Q5}
+
+newdata <- data.frame(PropMD=0.03, TotExp=14)
+predict(lm4, newdata,interval="predict")
+```
+
+
+Predicting the values at PropMD=0.03, TotExp=14 provides the following results.  
+
+The prediction is 108 years with a CI(84.24791, 131.1441).
+
+The data maxes out about the 90-100 range.  Seeing a prediction of 108 becomes unrealistic when the CI also shows 132 years.
+
+The model does what it is supposed to which is predict but it's up the data scientist to also interpret the results of the model.
