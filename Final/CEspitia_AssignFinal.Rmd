@@ -29,11 +29,27 @@ The data is loaded and the summary is being obtained for all variables (categori
 train = read.csv("train.csv")
 head(summary(train))
 
+#fill NAs with 0.
+train[is.na(train)] <- 0
+
 summary(train$BsmtFinSF1)
 summary(train$BsmtFinSF2)
 
-train$d = train$BsmtFinSF1+train$BsmtFinSF2
+train$BsmtFinSF12 = train$BsmtFinSF1+train$BsmtFinSF2
 
+
+#import test data for submission
+test = read.csv("test.csv")
+
+#fill NAs with 0.
+test[is.na(test)] <- 0
+
+
+```
+
+The data being used is the sum of the Finished Basement area.  This means that all types (even if the area is for mechanical/utilities) it could potentially in the future be reclaimed as usable space.  The area that is unfinished is being ignored as it is not livable at the point of sale. It may add potential value in the future but I am making the assumption that it will not for the purposes of this analysis.  In addition, I have generated new variables based upon looking at the data that I felt might be helpful when generating the models later on in the anlaysis.  These include AllSF which is the sum of all SF footage described in the house, and then taking this new variable and creating SFLotRatio.
+
+```{r dataexp2}
 #function to get mode of a variable.
 getmode <- function(v) {
   uniqv <- unique(v)
@@ -41,62 +57,358 @@ getmode <- function(v) {
 }
 
 #test for skewneess 
-summary(train$d)[4]>summary(train$d)[3]
-summary(train$d)[3]>getmode(train$d)
-skewness(train$d)
+summary(train$BsmtFinSF12)[4]>summary(train$BsmtFinSF12)[3]
+summary(train$BsmtFinSF12)[3]>getmode(train$BsmtFinSF12)
+skewness(train$BsmtFinSF12)
 
 #visual of skewness
 par(mfrow=c(1,2))
-hist(train$d, main ='Histogram of Usable \n Basement Area')
+hist(train$BsmtFinSF12, main ='Histogram of Usable \n Basement Area')
 
-qqnorm(train$d, main ='QQ Plot of Usable \n Basement Area')
-qqline(train$d)
+qqnorm(train$BsmtFinSF12, main ='QQ Plot of Usable \n Basement Area')
+qqline(train$BsmtFinSF12)
 
 ```
 
-The data being used is the sum of the Finished Basement area.  This means that all types (even if the area is for mechanical/utilities) it could potentially in the future be reclaimed as usable space.  The area that is unfinished is being ignored as it is not livable at the point of sale.  It may add potential value in the future but I am making the assumption that it will not for the purposes of this analysis.  
 
-In addition, the data was selected because of its skewness which in this case is mean > median > mode.  Which in this case is 490.2 > 465 > 0, with lower bound of 0 since an area can only be GTE to 0 in livable space.  The histogram and the qqplot also visually confirm this information.
 
-The dependent variable for this analysis will be the Sale Price of the home, the function will have the form of $f(x) = SalePrice = m*(BsmtFinSF1+BsmtFinSf2)+b$.
+In addition, the data was selected because of its skewness which in this case is mean > median > mode which is 490.2 > 465 > 0.  The data has a lower bound of 0, as an area can only be greater than or equal to 0 in livable space.  The histogram and the qqplot also visually confirm this information.
+
+The dependent variable for this analysis will be the Sale Price of the home, the function will have the form of $f(x) = SalePrice = m*BsmtFinSF12+b$ where BsmtFinSF12 is the sum of column BsmtFinSF1 and BsmtFinSF2 as noted above.
 
 
 ### Probability. 
 
 Calculate as a minimum the below probabilities a through c. Assume the small letter "x" is estimated as the 1st quartile of the X variable, and the small letter "y" is estimated as the 1st quartile of the Y variable. Interpret the meaning of all probabilities. In addition, make a table of counts as shown below.
 
-To populate the table of probabilities for the 3rd quartile for x and 2nd quartile for y, I will be using the quantile function in r.
+To populate the table of probabilities for the 1st quartile for x and 2nd quartile for y, I will be using the quantile function in r.
 
 a. P(X>x|Y>y)
 
-```{r prob1}
-x3 <- quantile(train$d, 0.75)
-y2 <- quantile(train$SalePrice, 0.5)
+```{r prob1a}
+xq1 <- quantile(train$BsmtFinSF12, 0.25)
+yq2 <- quantile(train$SalePrice, 0.5)
 
-filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] / filter(train, train$SalePrice > y2) %>% count()/dim(train)[1]
-d11<- filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] / filter(train, train$SalePrice > y2) %>% count()
+rowcount <- dim(train)[1]
+upperxq1yq2 <- filter(train, train$SalePrice > yq2 & train$BsmtFinSF12 > xq1) %>% count()
+upperyq2 <- filter(train, train$SalePrice > yq2) %>% count()
+
+(upperxq1yq2/rowcount) / (upperyq2/rowcount)
+
+#insert into matrix table
+d22<- filter(train, train$SalePrice > yq2 & train$BsmtFinSF12 > xq1) %>% count()
 ```
 
-
+The value for P(X>x|Y>y) is 0.7060.
 
 
 b. P(X>x,Y>y)
 
-```{r prob2}
-filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] * filter(train, train$SalePrice > y2) %>% count()/dim(train)[1]
-d11<- filter(train, train$SalePrice > y2 & train$d > x3) %>% count()/dim(train)[1] / filter(train, train$SalePrice > y2) %>% count()
+```{r prob1b}
+upperxq1yq2 <- filter(train, train$SalePrice > yq2 & train$BsmtFinSF12 > xq1) %>% count()
+upperyq2 <- filter(train, train$SalePrice > yq2) %>% count()
+
+(upperxq1yq2/rowcount) * (upperyq2/rowcount)
 ```
+
+The value for P(X>x,Y>y) is 0.1755.
 
 c. P(X<x|Y>y)
 
 
-```{r prob3}
-filter(train, train$SalePrice > y2 & train$d < x3) %>% count()/dim(train)[1] * filter(train, train$SalePrice > y2) %>% count()/dim(train)[1]
+```{r prob1c}
+upperyq2xq1 <- filter(train, train$SalePrice > yq2 & train$BsmtFinSF12 < xq1) %>% count()
+upperyq2 <- filter(train, train$SalePrice > yq2) %>% count()
+
+(upperyq2xq1/rowcount)/(upperyq2/rowcount)
+
+#Insert into matrix table
+d21<- filter(train, train$SalePrice > yq2 & train$BsmtFinSF12 < xq1) %>% count()
 ```
+
+The value P(X<x|Y>y) is 0
+
+Does splitting the training data in this fashion make them independent? 
+
+```{r prob1d}
+
+#Insert into matrix table.  Fill in other items including row and column sums.  
+d23 <- filter(train, train$SalePrice > yq2) %>% count()
+d13 <- dim(train)[1]-d23
+d32 <- filter(train, train$BsmtFinSF12 > xq1) %>% count()
+d31 <- dim(train)[1]-d32
+d11 <- d31-d21
+d12 <- d32-d22
+d33 <- dim(train)[1]
+
+#prepare table
+tab <- matrix(c(d11,d21,d31,d12,d22,d32,d13,d23,d33), 3, 3, byrow = T)
+
+print(tab)
+
+PA <- d32/d33
+PB <- d23/d33
+PA*PB
+```
+
+Let A be the new variable counting those observations above the 1st quartile for X, and let B be the new variable counting those observations above the 1st quartile for Y. 
+
+####Does P(AB)=P(A)P(B)? 
+
+The item P(A) * P(B) is 0.34.  This means that they are not equal as P(AB) = 0.71 which is not equal to 0.34.
+
+####Check mathematically, and then evaluate by running a Chi Square test for association. 
+
+```{r prob1e}
+
+chimat<-rbind(c(467,0),c(479,514))
+chisq.test(chimat,correct=TRUE)
+
+#check variables also
+chisq.test(train$TotalBsmtSF, train$SalePrice, correct=FALSE)
+
+```
+
+Since the p-value < .05 significance level, we reject the null hypothesis that the BsmtFinSF is independent of SalePrice. The test shows dependence between BsmtFinSF and SalePrice.  This was verified both using the breakout values and then doing the full test on the full data for X and Y.  
+
 
 ### Descriptive and Inferential Statistics.
 
+
+```{r prob2a}
+library("dplyr")
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(corrplot)
+
+ntrain<-select_if(train, is.numeric)
+ntrain %>%
+  keep(is.numeric) %>%                     # Keep only numeric columns
+  gather() %>%                             # Convert to key-value pairs
+  ggplot(aes(value)) +                     # Plot the values
+    facet_wrap(~ key, scales = "free") +   # In separate panels
+    geom_bar()                         # as density
+
+ntrain %>%
+  keep(is.numeric) %>%                     # Keep only numeric columns
+  gather() %>%                             # Convert to key-value pairs
+  ggplot(aes(value)) +                     # Plot the values
+    facet_wrap(~ key, scales = "free") +   # In separate panels
+    geom_density()                         # as density
+
+subset <- select(train, TotalBsmtSF, TotRmsAbvGrd, LotArea, SalePrice)
+
+subcor <- cor(subset)
+
+par(mfrow=c(1,2))
+ggplot(train, aes(x=BsmtFinSF12,y=SalePrice)) + geom_point() + ggtitle("Finished Basement SF vs Sale Price") + xlab("Finished Basement (BsmtFinSF1 + BsmtFinSF2)")
+corrplot(subcor, method="square")
+
+```
+
+The best correlation is TotalBsmtSF and SalePrice according to the information from the correlation plot. 
+
+```{r prob2c}
+cor.test(train$TotalBsmtSF, train$SalePrice, method = "pearson" , conf.level = 0.92)
+cor.test(train$TotRmsAbvGrd, train$SalePrice, method = "pearson" , conf.level = 0.92)
+cor.test(train$LotArea, train$SalePrice, method = "pearson" , conf.level = 0.92)
+```
+
+This indicates that there is correlation as the p-value is < 0.5 for all three selected variables. In all cases, the correlation values also fall within the 92 CI.
+
+Furthermore, although there seems to be no correlation with each of the three variables, we will do the calculation for Familywise Errors FWE which is FWE ≤ 1 – (1 – αIT)c.  Alpha in this icase if 92% and c is 3 for running the test for 3 variables.  In this case we get a value that is very high 0.999488.  In order to compensate for this we will rerun the correlation pearson tests but this time instead of CI of 92% we will adjust for the value of the 3 tests which is 8%/3 ~ 2.67%.  Our new CI will be 1-(8%/3) which is 97.33%
+
+
+```{r prob2d}
+cor.test(train$TotalBsmtSF, train$SalePrice, method = "pearson" , conf.level = 0.9733)
+cor.test(train$TotRmsAbvGrd, train$SalePrice, method = "pearson" , conf.level = 0.9733)
+cor.test(train$LotArea, train$SalePrice, method = "pearson" , conf.level = 0.9733)
+```
+
+In this case, we will get the same p-value that p<0.05 for all 3 items so we can reject the null hypthoses and continue to assume that all 3 variables do not have a correlation.  
+
 ### Linear Algebra and Correlation.
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Invert your 3 x 3 correlation matrix from above. (This is known as the precision matrix and contains variance inflation factors on the diagonal.) Multiply the correlation matrix by the precision matrix, and then multiply the precision matrix by the correlation matrix. Conduct LU decomposition on the matrix.
+
+
+The following items generate the inverted matrix from the correlation matrix.  
+
+```{r prob3a}
+print(subcor)
+inv<-solve(subcor)
+print(inv)
+
+round(subcor %*% inv)
+round(inv %*% subcor)
+
+library(Matrix)
+lum <- lu(inv)
+elu <- expand(lum)
+
+round(elu$L,3)
+round(elu$U,3)
+```
+
+Multiplying the Correlation Matrix and the Inverse or the Inverse and the Correlation Matrix provides an identity matrix (diagonal of 1s) which is expected.
+
+The package 'Matrix' is used to generate the Lower and Upper matrices.
+
+```{r prob3b}
+#Decompose L and U for the above Inverse Matrix
+library(Matrix)
+lum <- lu(inv)
+invlu <- expand(lum)
+
+invlu$L
+invlu$U
+
+#decomposing the correlation matrix
+sublum <- lu(subcor)
+sublu <- expand(sublum)
+
+round(sublu$L,3)
+round(sublu$U,3)
+
+```
+
+
 
 ### Calculus-Based Probability & Statistics.
+
+Many times, it makes sense to fit a closed form distribution to data. For the first variable that you selected which is skewed to the right, shift it so that the minimum value is above zero as necessary. Then load the MASS package and run fitdistr to fit an exponential probability density function. (See https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ). 
+
+Find the optimal value of λ for this distribution, and then take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, λ)). Plot a histogram and compare it with a histogram of your original variable. Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF). Also generate a 95% confidence interval from the empirical data, assuming normality. Finally, provide the empirical 5th percentile and 95th percentile of the data. Discuss.
+
+```{r prob4a}
+#Decompose L and U for the above Inverse Matrix
+library(MASS)
+min(train$BsmtFinSF12)
+train$BsmtFinSF122 <- train$BsmtFinSF12 + 1/10000
+min(train$BsmtFinSF122)
+
+#fit an exp dist
+fitexpd <- fitdistr(train$BsmtFinSF122, "exponential")
+lam <- fitexpd$estimate
+print(lam)
+
+s <- rexp(1000, lam)
+
+#histogram of old and new
+par(mfrow=c(1,2))
+hist(train$BsmtFinSF12, main="Kaggle Data", xlab="TotBsmtFin (1 and 2)")
+hist(s, main="Sampled Data")
+```
+
+The two distributions follow the same form with a lower peak in the sampling.  
+
+The CDF is $ P = 1 − e^-\lambda*x$ which means that $X = log(1-P)/-\lambda$
+
+```{r prob4b}
+# Obtain CDF for 5% and 95% for the sample data.
+cdf_5 <- log(1 - .05)/-lam
+cdf_95 <- log(1 - .95)/-lam
+
+# obtain normality 5% and 95%
+#this is done using quantiles which assume IID
+quantile(train$BsmtFinSF12, 0.05)
+quantile(train$BsmtFinSF12, 0.95)
+
+#Generate Confidence Interval
+#Use RMISC to calculate Confidence Interval
+library(Rmisc)
+CI(train$BsmtFinSF12, 0.95)
+print(cdf_5)
+print(cdf_95)
+```
+
+This means that the lower value is 466 and the upper is 515 for the Kaggle dataset.  The CDF from the sample data provides a range of 26 and 1469.  This means that the exponential function is NOT a good model to fit to the data.  The spread of the empirical data in the exponential is encompassing nearly all the data vs the actual normal bounds for the original data.  
+
+### Modeling
+
+Build some type of multiple regression model and submit your model to the competition board. Provide your complete model summary and results with analysis. Report your Kaggle.com user name and score.  Reminder that new variables were genrated at the start of this analysis for use here and include: AllSF, SFLotRatio and PriceperSF.
+
+####Step 1.  Split the Data.
+The first step is to split the data into a training set and a test set.  
+
+```{r prob5a}
+# Split data in reg and train
+#using ntrain from the 2nd question
+
+n <- nrow(ntrain) #1460 rows of data
+shuffle_ntrain <- ntrain[sample(n), ]
+train_indices <- 1:round(0.7 * n)
+trainsub <- shuffle_ntrain[train_indices, ]
+test_indices <- (round(0.7 * n) + 1):n
+testsub <- shuffle_ntrain[test_indices, ]
+testsub[is.na(testsub)] <- 0
+ntrain[is.na(ntrain)] <- 0
+```
+
+####Step 2.  Create Multiple Linear Regression Model.
+
+The next step is to create a multiple regression model.  This is just an expansion of the lm() function inside r and providing more than 1 independent variable for anlaysis.  In this case, the first model was generated by passing in all the numeric variables into the lm() function.  Upon further inspection, the independent variables were whittled down to select only those of significance and a 2nd pass model was generated. 
+
+```{r prob5a1}
+#fit a linear regression model
+newdatacor = cor(trainsub)
+corrplot(newdatacor)
+
+model <- lm(SalePrice ~ ., data=trainsub)
+summary(model)
+
+plot(model$residuals ~ model$fitted.values)
+
+#extract variables that are significant and rerun model
+sigvars <- data.frame(summary(model)$coef[summary(model)$coef[,4] <= .05, 4])
+sigvars <- add_rownames(sigvars, "vars")
+colist<-dplyr::pull(sigvars, vars)
+
+idx <- match(colist, names(trainsub))
+trainsub2 <- cbind(trainsub[,idx], trainsub['SalePrice'])
+
+model2<-lm(SalePrice ~ ., data=trainsub2)
+
+summary(model2)
+
+par(mfrow=c(1,2))
+plot(model2$residuals ~ model2$fitted.values, main="New Reduced Var Model")
+abline(h = 0)
+plot(model$residuals ~ model$fitted.values, main="Orignal Model All Vars")
+abline(h = 0)
+```
+
+The first model has an Adjusted R-squared:  0.8255 which indicates a good model but it seems like it might be overfitting the data since only 16 of the 80+ variables are actually significant.  The second model has a lower Adjusted R-squared:  0.8243 but it relies on less variables to achieve this result which makes it a better model that relies less on overfitting.  We could do a third pass by selecting only those that are below for example p<0.01 instead of p<0.05 which was used to select the variables.  
+
+
+####Step 3.  Predict Values on Test Data Provided by Kaggle Competition.  
+
+The final step was to apply the linear model tot he test data provided by Kaggle for submission.  In this case the training set had 1460 records and the test data had 1459 records.  
+
+```{r prob5a2}
+#predict
+
+
+#select only numeric columns
+test <- select_if(test, is.numeric)
+
+test[is.na(test)] <- 0
+pred2<-predict(model2,test)
+
+
+#export data for Kaggle
+kaggle <- as.data.frame(cbind(test$Id, pred2))
+colnames(kaggle) <- c("Id", "SalePrice")
+
+write.csv(kaggle, file = "Kaggle_Submission2.csv", quote=FALSE, row.names=FALSE)
+```
+
+After doing a second pass on my model, I was able to get predictions for the test data for the kaggle competition.  In submitting my predictions, I got a score of 0.24257 for my username cspitmit03 which gave me a rank of 4786/5325 which is the 10th percentile.  Note that when I added my own variables, my score actually dropped in half which means that they weren't effective in producing better predictions.
+
+```{r prob5b}
+# Split data in reg and train
+#using ntrain from the 2nd question
+knitr::include_graphics('Submission.png')
+```
+

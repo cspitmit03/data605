@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/390029/545468726cd84df98c2c56feca25f188
+bundleId: https://api.rpubs.com/api/v1/document/390029/545468726cd84df98c2c56feca25f188
+url: http://rpubs.com/cspitmit03/390029
+when: 1526828004.28708
